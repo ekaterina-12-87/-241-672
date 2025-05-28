@@ -16,7 +16,6 @@ class PostAdmin(admin.ModelAdmin):
 
 @admin.register(esexam)
 class ExamAdmin(admin.ModelAdmin):
-
  search_fields = ['title', 'users__email']
 
 

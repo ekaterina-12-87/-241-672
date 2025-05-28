@@ -14,3 +14,13 @@ def post_detail(request, id):
     return render(request,
 'blog/post/detail.html',
 {'post': post})
+
+
+def esexam_list(request):
+    exams = esexam.objects.filter(is_public=True)  # Только опубликованные
+
+    context = {
+        'exams': exams,
+        'student_info': "Степанова Екатерина Александровна, группа 241-672"
+    }
+    return render(request, 'blog/esexam_list.html', context)

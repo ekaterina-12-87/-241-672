@@ -40,6 +40,13 @@ class Post(models.Model):
 
 
 class esexam(models.Model):
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='authored_exams',
+        verbose_name="Автор",
+        null=True)  # Временно)
+
     title = models.CharField(max_length=250, verbose_name="Exam Title")
 
     created = models.DateTimeField(auto_now_add=True, verbose_name="Creation Date")

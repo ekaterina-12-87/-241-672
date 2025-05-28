@@ -1,0 +1,53 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+<h1>Экзамены</h1>
+<h2>{{ student_info }}</h2>
+
+{% if exams %}
+<div class="exams-container">
+    {% for exam in exams %}
+    <div class="exam-card">
+        <h3>{{ exam.title }}</h3>
+        
+        <div class="exam-details">
+            <p><strong>Дата создания:</strong> {{ exam.created|date:"d.m.Y" }}</p>
+            <p><strong>Дата экзамена:</strong> {{ exam.exam_date|date:"d.m.Y H:i" }}</p>
+            
+            {% if exam.image %}
+            <div class="exam-image">
+                <strong>Задание:</strong><br>
+                <img src="{{ exam.image.url }}" alt="{{ exam.title }}" class="img-fluid">
+            </div>
+            {% endif %}
+            
+            <div class="assigned-users">
+                <strong>Для студентов:</strong>
+                <ul>
+                    {% for user in exam.users.all %}
+                    <li>{{ user.get_full_name|default:user.username }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>Нет доступных экзаменов.</p>
+{% endif %}
+
+<style>
+    .exam-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    .exam-image img {
+        max-width: 100%;
+        height: auto;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
