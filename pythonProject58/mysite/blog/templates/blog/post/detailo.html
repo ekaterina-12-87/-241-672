@@ -1,76 +1,41 @@
-{% extends "blog/base.html" %}
-
-{% block title %}{{ room.hotel.name }} - номер {{ room.number }}{% endblock %}
-
-{% block content %}
-{% if room.availability != 'доступен' %}
-<div class="alert alert-warning">
-    Этот номер временно недоступен для бронирования
-</div>
-{% endif %}
-
-<div class="row">
-    <div class="col-md-8">
-        <div class="card mb-4">
-            {% if room.image %}
-            <img src="{{ room.image.url }}" class="card-img-top" alt="Номер {{ room.number }}">
-            {% endif %}
-            <div class="card-body">
-                <h2 class="card-title">{{ room.hotel.name }} - номер {{ room.number }}</h2>
-                <p class="text-muted">{{ room.hotel.location.city }}, {{ room.hotel.location.address }}</p>
-
-                <div class="mb-3">
-                    <span class="badge bg-primary">{{ room.type }}</span>
-                    <span class="badge {% if room.availability == 'доступен' %}bg-success{% else %}bg-danger{% endif %}">
-                        {{ room.get_availability_display }}
-                    </span>
-                    {% if room.pet_friendly == 'Разрешено' %}
-                    <span class="badge bg-info">Pet-friendly</span>
-                    {% endif %}
-                </div>
-
-                <h4 class="my-3">{{ room.price_day }} ₽ <small class="text-muted">за ночь</small></h4>
-
-                <ul class="list-group mb-3">
-                    <li class="list-group-item">Вместимость: {{ room.capacity }} человека</li>
-                    <li class="list-group-item">Плата за уборку: {{ room.cleaning_fee }} ₽</li>
-                    <li class="list-group-item">Разрешены животные: {{ room.get_pet_friendly_display }}</li>
-                </ul>
-            </div>
-        </div>
+<!-- templates/blog/_room_card.html -->
+<div class="card h-100">
+    {% if room.image %}
+    <img src="{{ room.image.url }}" class="card-img-top" alt="{{ room.hotel.name }} - номер {{ room.number }}">
+    {% else %}
+    <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
+        <i class="bi bi-image" style="font-size: 3rem;"></i>
     </div>
-
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5>Калькулятор стоимости</h5>
-            </div>
-            <div class="card-body">
-                <form id="priceCalculator">
-                    <div class="mb-3">
-                        <label class="form-label">Количество ночей</label>
-                        <input type="number" class="form-control" id="nights" min="1" value="1">
-                    </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="petCheck">
-                        <label class="form-check-label" for="petCheck">С животным</label>
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="calculate()">Рассчитать</button>
-                    <h4 class="mt-3">Итого: <span id="totalPrice">{{ room.price_day }}</span> ₽</h4>
-                </form>
-            </div>
+    {% endif %}
+    
+    <div class="card-body">
+        <h5 class="card-title">
+            {{ room.hotel.name }} 
+            <span class="badge bg-primary float-end">{{ room.price_day|floatformat:2 }} ₽/день</span>
+        </h5>
+        
+        <div class="mb-2">
+            {% for i in "12345" %}
+                {% if forloop.counter <= room.hotel.stars %}★{% else %}☆{% endif %}
+            {% endfor %}
+            <span class="badge bg-{% if room.availability == 'доступен' %}success{% else %}danger{% endif %} float-end">
+                {{ room.get_availability_display }}
+            </span>
+        </div>
+        
+        <p class="card-text">
+            <i class="bi bi-geo-alt"></i> {{ room.hotel.location.city }}, {{ room.hotel.location.address }}<br>
+            <i class="bi bi-people"></i> Вместимость: {{ room.capacity }} чел.<br>
+            <i class="bi bi-paw"></i> Питомцы: {{ room.get_pet_friendly_display }}
+        </p>
+    </div>
+    
+    <div class="card-footer bg-white">
+        <div class="d-flex justify-content-between">
+            <a href="#" class="btn btn-sm btn-outline-primary">Подробнее</a>
+            <button class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-heart"></i> В избранное
+            </button>
         </div>
     </div>
 </div>
-
-<script>
-function calculate() {
-    const nights = document.getElementById('nights').value;
-    const hasPet = document.getElementById('petCheck').checked;
-    const pricePerNight = {{ room.price_day }};
-    const cleaningFee = hasPet ? {{ room.cleaning_fee }} : 0;
-    const total = (pricePerNight * nights) + cleaningFee;
-    document.getElementById('totalPrice').textContent = total;
-}
-</script>
-{% endblock %}

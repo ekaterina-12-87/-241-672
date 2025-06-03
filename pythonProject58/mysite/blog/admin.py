@@ -38,18 +38,6 @@ class ProductInline(admin.TabularInline):
     verbose_name_plural = "Продукты"
 
 
-#@admin.register(Hotel)
-#class HotelAdmin(admin.ModelAdmin):
-#    list_display = ('name', 'stars', 'location_preview')
-#    list_filter = ('stars',)
-#    search_fields = ('name',)
-#    inlines = [RoomInline, WarehouseInline]
-#    readonly_fields = ('stars',)
-#
-#    @admin.display(description='Местоположение')
-#    def location_preview(self, obj):
-#        return f"{obj.location.get('city', '')}, {obj.location.get('address', '')}"
-
 @admin.register(Hotel)
 class HotelAdmin(admin.ModelAdmin):
     list_display = ('name', 'stars', 'location_preview')

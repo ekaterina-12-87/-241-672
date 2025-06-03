@@ -1,3 +1,4 @@
+'''
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Count, Avg, Q
 from django.http import Http404
@@ -62,6 +63,110 @@ def post_detailo(request, pk):
         'calculate_price': calculate_price,
     }
     return render(request, 'blog/post/detailo.html', context)
+'''
+
+from django.contrib import admin
+from .models import *
 
 
-# Create your views here.
+class PetRequirementInline(admin.TabularInline):
+    model = PetRequirement
+    extra = 1
+    raw_id_fields = ('pet', 'requirement')
+    verbose_name = "Требование для питомца"
+    verbose_name_plural = "Требования для питомцев"
+
+
+class PetInline(admin.TabularInline):
+    model = Pet
+    extra = 1
+    verbose_name = "Питомец"
+    verbose_name_plural = "Питомцы"
+
+
+class RoomInline(admin.TabularInline):
+    model = Room
+    extra = 1
+    verbose_name = "Комната"
+    verbose_name_plural = "Комнаты"
+
+
+class WarehouseInline(admin.TabularInline):
+    model = Warehouse
+    extra = 1
+    verbose_name = "Склад"
+    verbose_name_plural = "Склады"
+
+
+class ProductInline(admin.TabularInline):
+    model = Product
+    extra = 1
+    verbose_name = "Продукт"
+    verbose_name_plural = "Продукты"
+
+
+#@admin.register(Hotel)
+#class HotelAdmin(admin.ModelAdmin):
+#    list_display = ('name', 'stars', 'location_preview')
+#    list_filter = ('stars',)
+#    search_fields = ('name',)
+#    inlines = [RoomInline, WarehouseInline]
+#    readonly_fields = ('stars',)
+#
+#    @admin.display(description='Местоположение')
+#    def location_preview(self, obj):
+#        return f"{obj.location.get('city', '')}, {obj.location.get('address', '')}"
+
+
+
+# views.py
+from django.shortcuts import render
+from django.db.models import Count, Avg, Max, Min, Sum
+from .models import Hotel, Room, Booking, Client
+from django.contrib.postgres.search import SearchVector
+
+
+def home_view(request):
+    # Статистика (агрегатные функции)
+    stats = {
+        'total_hotels': Hotel.objects.count(),
+        'available_rooms': Room.objects.filter(availability='доступен').count(),
+        'avg_price': Room.objects.aggregate(avg=Avg('price_day'))['avg'],
+        'max_price': Room.objects.aggregate(max=Max('price_day'))['max'],
+        'min_price': Room.objects.aggregate(min=Min('price_day'))['min'],
+    }
+
+    # Топ-5 отелей по количеству бронирований (с аннотацией)
+    top_hotels = Hotel.objects.annotate(
+        bookings_count=Count('room__booking')
+    ).order_by('-bookings_count')[:5]
+
+    # Последние 5 бронирований
+    recent_bookings = Booking.objects.select_related(
+        'client', 'room', 'room__hotel'
+    ).order_by('-arrival_date')[:5]
+
+    # Доступные номера с изображениями
+    available_rooms = Room.objects.filter(
+        availability='доступен'
+    ).select_related('hotel').order_by('?')[:10]
+
+    # Поиск
+    search_results = []
+    search_query = ''
+
+    if request.method == 'GET' and 'search' in request.GET:
+        search_query = request.GET.get('search', '')
+        search_results = Room.objects.annotate(
+            search=SearchVector('hotel__name', 'type', 'hotel__location__city')
+        ).filter(search=search_query)
+
+    context = {
+        'stats': stats,
+        'top_hotels': top_hotels,
+        'recent_bookings': recent_bookings,
+        'available_rooms': available_rooms,
+        'search_results': search_results,
+        'search_query': search_query,
+    }
+    return render(request, 'blog/post/list.html', context)
