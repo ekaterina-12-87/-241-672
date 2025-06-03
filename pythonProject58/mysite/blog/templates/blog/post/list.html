@@ -1,0 +1,91 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <!-- Статистика -->
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5>Отелей в системе</h5>
+                <h2>{{ stats.total_hotels }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5>Доступных номеров</h5>
+                <h2>{{ stats.available_rooms }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5>Средняя цена</h5>
+                <h2>{{ stats.avg_price|floatformat:2 }} ₽</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Отели с номерами -->
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4>Наши отели</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for hotel in hotels %}
+            <div class="col-md-4 mb-3">
+                <div class="card hotel-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ hotel.name }}</h5>
+                        <div class="mb-2">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= hotel.stars %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="card-text">
+                            {{ hotel.location.city }}, {{ hotel.location.address }}
+                        </p>
+                        <span class="badge bg-success">
+                            Доступно номеров: {{ hotel.available_rooms }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Последние бронирования -->
+<div class="card">
+    <div class="card-header bg-secondary text-white">
+        <h4>Последние бронирования</h4>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Клиент</th>
+                    <th>Отель</th>
+                    <th>Номер</th>
+                    <th>Даты</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.client.name }}</td>
+                    <td>{{ booking.room.hotel.name }}</td>
+                    <td>{{ booking.room.number }}</td>
+                    <td>{{ booking.arrival_date|date:"d.m.Y" }} - {{ booking.departure_date|date:"d.m.Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
