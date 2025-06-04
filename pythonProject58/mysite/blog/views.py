@@ -136,12 +136,10 @@ def home_view(request):
         'min_price': Room.objects.aggregate(min=Min('price_day'))['min'],
     }
 
-    # Топ-5 отелей по количеству бронирований (с аннотацией)
     top_hotels = Hotel.objects.annotate(
         bookings_count=Count('room__booking')
     ).order_by('-bookings_count')[:5]
 
-    # Последние 5 бронирований
     recent_bookings = Booking.objects.select_related(
         'client', 'room', 'room__hotel'
     ).order_by('-arrival_date')[:5]
@@ -170,3 +168,16 @@ def home_view(request):
         'search_query': search_query,
     }
     return render(request, 'blog/post/list.html', context)
+
+from django.shortcuts import render, get_object_or_404
+
+def room_detail(request, room_id):
+    room = get_object_or_404(Room.objects.select_related('hotel'), id=room_id)
+    return render(request, 'blog/detailo.html', {'room': room})
+
+# views.py
+from django.http import FileResponse
+from django.conf import settings
+
+def test_image(request):
+    return FileResponse(open(os.path.join(settings.MEDIA_ROOT, 'room_images/test.jpg'), 'rb'))

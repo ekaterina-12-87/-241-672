@@ -1,41 +1,47 @@
-<!-- templates/blog/_room_card.html -->
-<div class="card h-100">
-    {% if room.image %}
-    <img src="{{ room.image.url }}" class="card-img-top" alt="{{ room.hotel.name }} - номер {{ room.number }}">
-    {% else %}
-    <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
-        <i class="bi bi-image" style="font-size: 3rem;"></i>
-    </div>
-    {% endif %}
-    
-    <div class="card-body">
-        <h5 class="card-title">
-            {{ room.hotel.name }} 
-            <span class="badge bg-primary float-end">{{ room.price_day|floatformat:2 }} ₽/день</span>
-        </h5>
-        
-        <div class="mb-2">
-            {% for i in "12345" %}
-                {% if forloop.counter <= room.hotel.stars %}★{% else %}☆{% endif %}
-            {% endfor %}
-            <span class="badge bg-{% if room.availability == 'доступен' %}success{% else %}danger{% endif %} float-end">
-                {{ room.get_availability_display }}
-            </span>
-        </div>
-        
-        <p class="card-text">
-            <i class="bi bi-geo-alt"></i> {{ room.hotel.location.city }}, {{ room.hotel.location.address }}<br>
-            <i class="bi bi-people"></i> Вместимость: {{ room.capacity }} чел.<br>
-            <i class="bi bi-paw"></i> Питомцы: {{ room.get_pet_friendly_display }}
-        </p>
-    </div>
-    
-    <div class="card-footer bg-white">
-        <div class="d-flex justify-content-between">
-            <a href="#" class="btn btn-sm btn-outline-primary">Подробнее</a>
-            <button class="btn btn-sm btn-outline-danger">
-                <i class="bi bi-heart"></i> В избранное
-            </button>
+{% extends "blog/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                {% if room.image %}
+                <img src="{{ room.image.url }}" class="card-img-top" alt="{{ room.hotel.name }} - номер {{ room.number }}">
+                {% endif %}
+
+                <div class="card-body">
+                    <h2>{{ room.hotel.name }} - номер {{ room.number }}</h2>
+                    <div class="mb-3">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= room.hotel.stars %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                        <span class="badge bg-{% if room.availability == 'доступен' %}success{% else %}danger{% endif %}">
+                            {{ room.get_availability_display }}
+                        </span>
+                    </div>
+
+                    <h4 class="text-primary">{{ room.price_day|floatformat:2 }} ₽/день</h4>
+
+                    <div class="mb-3">
+                        <p><i class="bi bi-geo-alt"></i> {{ room.hotel.location.city }}, {{ room.hotel.location.address }}</p>
+                        <p><i class="bi bi-people"></i> Вместимость: {{ room.capacity }} чел.</p>
+                        <p><i class="bi bi-paw"></i> Питомцы: {{ room.get_pet_friendly_display }}</p>
+                        <p><i class="bi bi-brush"></i> Плата за уборку: {{ room.cleaning_fee|floatformat:2 }} ₽</p>
+                    </div>
+
+                    <p class="card-text">{{ room.description|default:"Описание номера отсутствует." }}</p>
+
+                    <!-- Перемещаем кнопку "Забронировать" под описание номера -->
+                    <button class="btn btn-primary w-100 mt-3">Забронировать</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<a href="{% url 'blog:home_view' %}" class="btn btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left"></i> Назад к списку
+</a>
+{% endblock %}
+
+

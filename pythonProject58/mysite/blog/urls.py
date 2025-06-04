@@ -4,4 +4,5 @@ app_name = 'blog'
 urlpatterns = [
  # представления поста
  path('', views.home_view, name='home_view'),
+ path('room/<int:room_id>/', views.room_detail, name='room_detail'),
 ]
