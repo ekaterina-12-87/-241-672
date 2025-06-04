@@ -1,0 +1,129 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1>{{ hotel.name }}</h1>
+                    <p class="lead">
+                        <span class="badge bg-warning">{{ hotel.stars }}★</span>
+                        <span class="ms-2">{{ hotel.location.city }}, {{ hotel.location.address }}</span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{% url 'blog:home_view' %}" class="btn btn-outline-secondary">
+                        Назад к списку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body text-center">
+                    <h5>Всего номеров</h5>
+                    <h2>{{ stats.total_rooms }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body text-center">
+                    <h5>Доступно номеров</h5>
+                    <h2>{{ stats.available_rooms }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info">
+                <div class="card-body text-center">
+                    <h5>Средняя цена</h5>
+                    <h2>{{ stats.avg_price|floatformat:2 }} ₽</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Номера в отеле -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h4>Номера в отеле</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for room in rooms %}
+                <div class="col-md-4 mb-4">
+                    <div class="card hotel-card h-100">
+                        {% if room.image %}
+                        <img src="{{ room.image.url }}" class="card-img-top" alt="{{ room.type }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">Комната №{{ room.number }}</h5>
+                            <p class="card-text">
+                                <span class="badge bg-primary">{{ room.type }}</span>
+                                <span class="badge {% if room.availability == 'доступен' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ room.get_availability_display }}
+                                </span>
+                            </p>
+                            <p class="card-text">
+                                <strong>Цена:</strong> {{ room.price_day }} ₽/день<br>
+                                <strong>Вместимость:</strong> {{ room.capacity }} чел.<br>
+                                <strong>Питомцы:</strong> {{ room.get_pet_friendly_display }}
+                            </p>
+                            <a href="{% url 'blog:room_detail' room.id %}" class="btn btn-primary">
+                                Подробнее
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Последние бронирования -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h4>Последние бронирования</h4>
+        </div>
+        <div class="card-body">
+            {% if recent_bookings %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Клиент</th>
+                            <th>Номер</th>
+                            <th>Даты</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                        <tr>
+                            <td>{{ booking.client.name }}</td>
+                            <td>{{ booking.room.number }}</td>
+                            <td>
+                                {{ booking.arrival_date|date:"d.m.Y" }} - 
+                                {{ booking.departure_date|date:"d.m.Y" }}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ booking.get_status_display }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">Нет данных о бронированиях</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

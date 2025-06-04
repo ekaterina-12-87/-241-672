@@ -181,3 +181,29 @@ from django.conf import settings
 
 def test_image(request):
     return FileResponse(open(os.path.join(settings.MEDIA_ROOT, 'room_images/test.jpg'), 'rb'))
+
+
+def hotel_detail(request, hotel_id):
+    hotel = get_object_or_404(
+        Hotel.objects.prefetch_related('room_set'),
+        id=hotel_id
+    )
+
+    # Получаем статистику по отелю
+    stats = {
+        'total_rooms': hotel.room_set.count(),
+        'available_rooms': hotel.room_set.filter(availability='доступен').count(),
+        'avg_price': hotel.room_set.aggregate(avg=Avg('price_day'))['avg'],
+    }
+
+    # Получаем последние бронирования для этого отеля
+    recent_bookings = Booking.objects.filter(
+        room__hotel=hotel
+    ).select_related('client', 'room').order_by('-arrival_date')[:5]
+
+    return render(request, 'blog/post/hotel_detail.html', {
+        'hotel': hotel,
+        'stats': stats,
+        'recent_bookings': recent_bookings,
+        'rooms': hotel.room_set.all()
+    })
