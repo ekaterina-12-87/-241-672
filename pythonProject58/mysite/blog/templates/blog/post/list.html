@@ -73,34 +73,29 @@
     </div>
 
     <!-- Топ отелей -->
-    <div class="card mb-4">
-        <div class="card-header bg-dark text-white">
-            <h4>Топ-5 популярных отелей</h4>
-        </div>
-        <div class="card-body">
-            <ol class="list-group list-group-numbered">
-                {% for hotel in top_hotels %}
-                <li class="list-group-item d-flex justify-content-between align-items-start">
-                    <div class="ms-2 me-auto">
-                        <div class="fw-bold">{{ hotel.name }}</div>
-                        {{ hotel.location.city }}
-                        <span class="badge bg-primary rounded-pill ms-2">
-                            {{ hotel.stars }}★
-                        </span>
-                    </div>
-                    <span class="badge bg-success rounded-pill">
-                        {{ hotel.bookings_count }} бронирований
-                    </span>
-                    <button class="btn btn-sm btn-outline-secondary ms-2">
-                        <a href="{% url 'blog:hotel_detail' hotel.id %}" class="btn btn-sm btn-outline-primary ms-2">
-                            <i class="bi bi-info-circle"></i> Подробнее
-                        </a>
-                    </button>
-                </li>
-                {% endfor %}
-            </ol>
+    <!-- В разделе "Топ отелей" заменим список на ссылки -->
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h4>Топ-5 популярных отелей</h4>
+    </div>
+    <div class="card-body">
+        <div class="list-group">
+            {% for hotel in top_hotels %}
+            <a href="{% url 'blog:hotel_detail' hotel.id %}"
+               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">{{ hotel.name }}</h5>
+                    <small>{{ hotel.location.city }}</small>
+                    <span class="badge bg-warning ms-2">{{ hotel.stars }}★</span>
+                </div>
+                <span class="badge bg-primary rounded-pill">
+                    {{ hotel.bookings_count }} бронирований
+                </span>
+            </a>
+            {% endfor %}
         </div>
     </div>
+</div>
 
     <!-- Доступные номера -->
     <div class="card mb-4">
@@ -118,50 +113,62 @@
         </div>
     </div>
 
+    <!-- Добавим перед разделом "Последние бронирования" -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Последние бронирования</h4>
+        <a href="{% url 'blog:booking_add' %}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Новое бронирование
+        </a>
+    </div>
     <!-- Последние бронирования -->
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h4>Последние бронирования</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Клиент</th>
-                            <th>Отель</th>
-                            <th>Номер</th>
-                            <th>Даты</th>
-                            <th>Стоимость</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for booking in recent_bookings %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ booking.client.name }}</td>
-                            <td>{{ booking.room.hotel.name }}</td>
-                            <td>
-                                {{ booking.room.number }}
-                                <span class="badge bg-info">{{ booking.room.type }}</span>
-                            </td>
-                            <td>
-                                {{ booking.arrival_date|date:"d.m.Y" }} -
-                                {{ booking.departure_date|date:"d.m.Y" }}
-                                <br>
-                                <small>{{ booking.duration }} дней</small>
-                            </td>
-                            <td>
-                                {{ booking.room.price_day|floatformat:2 }} ₽
-                                <button class="btn btn-sm btn-outline-primary ms-2">
-                                    <i class="bi bi-star"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <!-- В разделе "Последние бронирования" -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4>Последние бронирования</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>  <!-- Это заголовок столбца с номером бронирования -->
+                                    <th>Клиент</th>
+                                    <th>Отель</th>
+                                    <th>Номер</th>
+                                    <th>Даты</th>
+                                    <th>Стоимость</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in recent_bookings %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'blog:booking_detail' booking.id %}">{{ booking.id }}</a>
+                                    </td>
+                                    <td>{{ booking.client.name }}</td>
+                                    <td>{{ booking.room.hotel.name }}</td>
+                                    <td>
+                                        {{ booking.room.number }}
+                                        <span class="badge bg-info">{{ booking.room.type }}</span>
+                                    </td>
+                                    <td>
+                                        {{ booking.arrival_date|date:"d.m.Y" }} -
+                                        {{ booking.departure_date|date:"d.m.Y" }}
+                                        <br>
+                                        <small>{{ booking.duration }} дней</small>
+                                    </td>
+                                    <td>
+                                        {{ booking.room.price_day|floatformat:2 }} ₽
+                                        <button class="btn btn-sm btn-outline-primary ms-2">
+                                            <i class="bi bi-star"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,91 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3>{{ title }}</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.client.label_tag }}
+                            {{ form.client }}
+                            {% if form.client.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.client.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.room.label_tag }}
+                            {{ form.room }}
+                            {% if form.room.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.room.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.pet.label_tag }}
+                            {{ form.pet }}
+                            {% if form.pet.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.pet.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.arrival_date.label_tag }}
+                            {{ form.arrival_date }}
+                            {% if form.arrival_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.arrival_date.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.departure_date.label_tag }}
+                            {{ form.departure_date }}
+                            {% if form.departure_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.departure_date.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.human_count.label_tag }}
+                            {{ form.human_count }}
+                            {% if form.human_count.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.human_count.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{% url 'blog:booking_list' %}" class="btn btn-secondary">
+                        Отмена
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        {{ btn_text }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

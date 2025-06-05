@@ -184,19 +184,17 @@ def test_image(request):
 
 
 def hotel_detail(request, hotel_id):
-    hotel = get_object_or_404(
-        Hotel.objects.prefetch_related('room_set'),
-        id=hotel_id
-    )
+    try:
+        hotel = Hotel.objects.prefetch_related('room_set').get(id=hotel_id)
+    except Hotel.DoesNotExist:
+        return render(request, 'blog/404.html', status=404)
 
-    # Получаем статистику по отелю
     stats = {
         'total_rooms': hotel.room_set.count(),
         'available_rooms': hotel.room_set.filter(availability='доступен').count(),
         'avg_price': hotel.room_set.aggregate(avg=Avg('price_day'))['avg'],
     }
 
-    # Получаем последние бронирования для этого отеля
     recent_bookings = Booking.objects.filter(
         room__hotel=hotel
     ).select_related('client', 'room').order_by('-arrival_date')[:5]
@@ -207,3 +205,81 @@ def hotel_detail(request, hotel_id):
         'recent_bookings': recent_bookings,
         'rooms': hotel.room_set.all()
     })
+
+
+def booking_detail(request, booking_id):
+    booking = get_object_or_404(
+        Booking.objects.select_related('client', 'room', 'room__hotel', 'pet'),
+        id=booking_id
+    )
+    return render(request, 'blog/post/booking_detail.html', {'booking': booking})
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import BookingForm
+
+
+def booking_add(request):
+    if request.method == 'POST':
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.status = 'действительно'  # Устанавливаем статус по умолчанию
+            booking.save()
+            messages.success(request, f'Бронирование #{booking.id} успешно создано!')
+            return redirect('blog:booking_detail', booking_id=booking.id)
+    else:
+        form = BookingForm()
+
+    return render(request, 'blog/post/booking_form.html', {
+        'form': form,
+        'title': 'Создание бронирования',
+        'btn_text': 'Создать',
+    })
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .forms import BookingForm
+from .models import Booking
+
+
+def booking_edit(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    if request.method == 'POST':
+        form = BookingForm(request.POST, instance=booking)
+        if form.is_valid():
+            booking = form.save()
+            messages.success(request, f'Бронирование #{booking.id} успешно обновлено!')
+            return redirect('blog:booking_detail', booking_id=booking.id)
+    else:
+        form = BookingForm(instance=booking)
+
+    return render(request, 'blog/post/booking_form.html', {
+        'form': form,
+        'title': f'Редактирование бронирования #{booking.id}',
+        'btn_text': 'Сохранить',
+    })
+
+
+def booking_delete(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    if request.method == 'POST':
+        booking.delete()
+        messages.success(request, f'Бронирование #{booking_id} успешно удалено!')
+        return redirect('blog:booking_list')
+
+    return render(request, 'blog/post/booking_confirm_delete.html', {'booking': booking})
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import Booking
+from .forms import BookingForm
+
+def booking_list(request):
+    bookings = Booking.objects.select_related('client', 'room', 'room__hotel').order_by('-arrival_date')
+    return render(request, 'blog/post/booking_list.html', {'bookings': bookings})
+
+# Остальные представления (booking_detail, booking_add, booking_edit, booking_delete) остаются без изменений

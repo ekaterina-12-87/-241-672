@@ -5,19 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Гостиничный менеджмент{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         .hotel-card { transition: transform 0.3s; }
         .hotel-card:hover { transform: translateY(-5px); }
         .badge-available { background-color: #28a745; }
         .badge-unavailable { background-color: #dc3545; }
+        .navbar { margin-bottom: 20px; }
+        .active-menu-item { font-weight: bold; border-bottom: 2px solid white; }
     </style>
 </head>
+
+
+
+
+
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'blog:home_view' %}">Отельный комплекс</a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="{% url 'blog:home_view' %}">Главная</a>
+            <a class="navbar-brand" href="{% url 'blog:home_view' %}">
+                <i class="bi bi-building"></i> Отельный комплекс
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home_view' %}active{% endif %}"
+                            href="{% url 'blog:home_view' %}">
+                            <i class="bi bi-house-door"></i> Главная
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'booking_list' %}active{% endif %}"
+                            href="{% url 'blog:booking_list' %}">
+                            <i class="bi bi-list-ul"></i> Бронирования
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'booking_add' %}active{% endif %}"
+                            href="{% url 'blog:booking_add' %}">
+                            <i class="bi bi-plus-circle"></i> Добавить
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home_view' %}active-menu-item{% endif %}"
+                           href="{% url 'blog:home_view' %}">
+                            <i class="bi bi-house-door"></i> Главная
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'hotel_detail' %}active-menu-item{% endif %}"
+                           href="{% url 'blog:hotel_detail' 1 %}">
+                            <i class="bi bi-info-circle"></i> Пример отеля
+                        </a>
+                    </li>
+                </ul>
+                <form class="d-flex" method="get" action="{% url 'blog:home_view' %}">
+                    <input class="form-control me-2" type="search" name="search" placeholder="Поиск..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
             </div>
         </div>
     </nav>
@@ -25,6 +80,13 @@
     <div class="container">
         {% block content %}{% endblock %}
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
